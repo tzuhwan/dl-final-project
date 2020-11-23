@@ -134,4 +134,4 @@ def tokenize(users):
     return users
 
 
-tokenize(get_data("./T1/DATA"))
+tokenize(get_data("./DL_dataset/T1/DATA"))
