@@ -7,6 +7,11 @@ import xml.etree.ElementTree as ET
 from user import User
 from post import Post
 
+import gensim
+from gensim import corpora
+from gensim import models
+from gensim.models import LsiModel
+from gensim.matutils import Sparse2Corpus, corpus2dense
 
 def create_post(post_xml_tree_element):
     """
@@ -86,15 +91,16 @@ def tokenize(users):
     """
 
     print("before cleaning")
-    for x in range(10):
-        print("post", x)
-        print(users[50].posts[x].title)
-        print(users[50].posts[x].text)
+    #for x in range(10):
+    #    print("post", x)
+    #    print(users[50].posts[x].title)
+    #    print(users[50].posts[x].text)
 
     tokenizer = nltk.RegexpTokenizer(r"\w+")
     stop_words = set(stopwords.words("english"))
     porter = PorterStemmer()
 
+    text_tokens = []
     for user in users:
         for post in user.posts:
             if post.title is not None:
@@ -125,11 +131,36 @@ def tokenize(users):
                 # stemming of words
                 post.text = [porter.stem(word) for word in post.text]
 
+                # add tokenized text to lst
+
+                if post.text != []:
+                    text_tokens.append(post.text)
+                
+
     print("after cleaning")
-    for x in range(10):
-        print("post", x)
-        print(users[50].posts[x].title)
-        print(users[50].posts[x].text)
+    
+    # Creating a transformation
+    dictionary = corpora.Dictionary(text_tokens)
+    num_terms = len(dictionary)
+    corpus = [dictionary.doc2bow(text) for text in text_tokens]
+    
+    # step 1 -- initialize a model
+    tfidf = models.TfidfModel(corpus) 
+
+    # step 2 -- use the model to transform vectors
+    corpus_tfidf = tfidf[corpus]
+    count = 0
+
+    lsi_model = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=128)  # initialize an LSI transformation
+    corpus_lsi = lsi_model[corpus_tfidf]  # create a double wrapper over the original corpus: bow->tfidf->fold-in-lsi
+    #print(lsi_model.print_topic(15, topn=10)) prints topic weights for a given topic
+
+    embeddings = gensim.matutils.corpus2dense(corpus_lsi, num_terms)
+
+    #for x in range(10):
+        #print("post", x)
+        #print(users[50].posts[x].title)
+        #print(users[50].posts[x].text)
 
     return users
 
