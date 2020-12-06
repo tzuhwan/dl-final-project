@@ -59,26 +59,45 @@ def create_user(user_xml_tree_root):
 
     return User(user_id, user_posts)
 
+def create_user_label_map(label_file_path):
+	"""
+	Creates a map from subject ID -> label.
+	Used when assigning user labels when creating User objects
+	"""
+	label_file = open(label_file_path, encoding="utf-8")
+	lines = label_file.readlines()
+
+	user_label_map = {}
+	for line in lines:
+		user_id, label = line.split()
+		user_label_map[user_id] = int(label)
+
+	return user_label_map
 
 def get_data(directory_path):
-    """
-    Extracts all data for each user and their posts.
-    Creates a User instance for each subject XML file and returns them as a list.
+		"""
+		Extracts all data for each user and their posts.
+		Creates a User instance for each subject XML file and returns them as a list.
 
-    param directory_path: The path to the directory containing the subject XML files
-    return: a list of Users
-    """
-    users = []
-    for user_filename in os.listdir(directory_path):
-        file_path = directory_path + "/" + user_filename
-        # user_file = open(f"{directory_path}/{user_filename}", "rb")
-        user_file = open(file_path, "rb")
+		param directory_path: The path to the directory containing the subject XML files
+		return: a list of Users
+		"""
+		user_label_map = create_user_label_map("./DL_dataset/T1/T1_erisk_golden_truth.txt")
 
-        # Parse the XML file and create a User instance from the XML tree
-        user_xml_tree = ET.parse(user_file)
-        users.append(create_user(user_xml_tree.getroot()))
+		users = []
+		for user_filename in os.listdir(directory_path):
+				file_path = directory_path + "/" + user_filename
+				# user_file = open(f"{directory_path}/{user_filename}", "rb")
+				user_file = open(file_path, "rb")
 
-    return users
+				# Parse the XML file and create a User instance from the XML tree
+				user_xml_tree = ET.parse(user_file)
+				user = create_user(user_xml_tree.getroot())
+				user.set_label(user_label_map[user.id])
+
+				users.append(user)
+
+		return users
 
 
 def tokenize(users):
