@@ -13,6 +13,7 @@ from gensim import models
 from gensim.models import LsiModel
 from gensim.matutils import Sparse2Corpus, corpus2dense
 
+
 def create_post(post_xml_tree_element):
     """
     Converts an XML tree element to a Post instance.
@@ -59,45 +60,47 @@ def create_user(user_xml_tree_root):
 
     return User(user_id, user_posts)
 
+
 def create_user_label_map(label_file_path):
-	"""
-	Creates a map from subject ID -> label.
-	Used when assigning user labels when creating User objects
-	"""
-	label_file = open(label_file_path, encoding="utf-8")
-	lines = label_file.readlines()
+    """
+    Creates a map from subject ID -> label.
+    Used when assigning user labels when creating User objects
+    """
+    label_file = open(label_file_path, encoding="utf-8")
+    lines = label_file.readlines()
 
-	user_label_map = {}
-	for line in lines:
-		user_id, label = line.split()
-		user_label_map[user_id] = int(label)
+    user_label_map = {}
+    for line in lines:
+        user_id, label = line.split()
+        user_label_map[user_id] = int(label)
 
-	return user_label_map
+    return user_label_map
+
 
 def get_data(directory_path):
-		"""
-		Extracts all data for each user and their posts.
-		Creates a User instance for each subject XML file and returns them as a list.
+    """
+    Extracts all data for each user and their posts.
+    Creates a User instance for each subject XML file and returns them as a list.
 
-		param directory_path: The path to the directory containing the subject XML files
-		return: a list of Users
-		"""
-		user_label_map = create_user_label_map("./DL_dataset/T1/T1_erisk_golden_truth.txt")
+    param directory_path: The path to the directory containing the subject XML files
+    return: a list of Users
+    """
+    user_label_map = create_user_label_map("./DL_dataset/T1/T1_erisk_golden_truth.txt")
 
-		users = []
-		for user_filename in os.listdir(directory_path):
-				file_path = directory_path + "/" + user_filename
-				# user_file = open(f"{directory_path}/{user_filename}", "rb")
-				user_file = open(file_path, "rb")
+    users = []
+    for user_filename in os.listdir(directory_path):
+        file_path = directory_path + "/" + user_filename
+        # user_file = open(f"{directory_path}/{user_filename}", "rb")
+        user_file = open(file_path, "rb")
 
-				# Parse the XML file and create a User instance from the XML tree
-				user_xml_tree = ET.parse(user_file)
-				user = create_user(user_xml_tree.getroot())
-				user.set_label(user_label_map[user.id])
+        # Parse the XML file and create a User instance from the XML tree
+        user_xml_tree = ET.parse(user_file)
+        user = create_user(user_xml_tree.getroot())
+        user.set_label(user_label_map[user.id])
 
-				users.append(user)
+        users.append(user)
 
-		return users
+    return users
 
 
 def tokenize(users):
@@ -108,12 +111,6 @@ def tokenize(users):
     param users: A list of user objects with untokenized title and text
     return: A list of user objects with tokenized title and text and transformed to lowercase
     """
-
-    print("before cleaning")
-    #for x in range(10):
-    #    print("post", x)
-    #    print(users[50].posts[x].title)
-    #    print(users[50].posts[x].text)
 
     tokenizer = nltk.RegexpTokenizer(r"\w+")
     stop_words = set(stopwords.words("english"))
@@ -152,36 +149,76 @@ def tokenize(users):
 
                 # add tokenized text to lst
 
-                if post.text != []:
-                    text_tokens.append(post.text)
-                
+                # if post.text != []:
+                #     text_tokens.append(post.text)
 
-    print("after cleaning")
-    
-    # Creating a transformation
-    dictionary = corpora.Dictionary(text_tokens)
-    num_terms = len(dictionary)
-    corpus = [dictionary.doc2bow(text) for text in text_tokens]
-    
-    # step 1 -- initialize a model
-    tfidf = models.TfidfModel(corpus) 
+    # # Creating a transformation
+    # dictionary = corpora.Dictionary(text_tokens)
+    # num_terms = len(dictionary)
+    # corpus = [dictionary.doc2bow(text) for text in text_tokens]
 
-    # step 2 -- use the model to transform vectors
-    corpus_tfidf = tfidf[corpus]
-    count = 0
+    # # step 1 -- initialize a model
+    # tfidf = models.TfidfModel(corpus)
 
-    lsi_model = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=128)  # initialize an LSI transformation
-    corpus_lsi = lsi_model[corpus_tfidf]  # create a double wrapper over the original corpus: bow->tfidf->fold-in-lsi
-    #print(lsi_model.print_topic(15, topn=10)) prints topic weights for a given topic
+    # # step 2 -- use the model to transform vectors
+    # corpus_tfidf = tfidf[corpus]
 
-    embeddings = gensim.matutils.corpus2dense(corpus_lsi, num_terms)
+    # lsi_model = models.LsiModel(
+    #     corpus_tfidf, id2word=dictionary, num_topics=128
+    # )  # initialize an LSI transformation
+    # corpus_lsi = lsi_model[
+    #     corpus_tfidf
+    # ]  # create a double wrapper over the original corpus: bow->tfidf->fold-in-lsi
+    # # print(lsi_model.print_topic(15, topn=10)) prints topic weights for a given topic
 
-    #for x in range(10):
-        #print("post", x)
-        #print(users[50].posts[x].title)
-        #print(users[50].posts[x].text)
+    # embeddings = gensim.matutils.corpus2dense(corpus_lsi, num_terms)
 
     return users
 
 
-tokenize(get_data("./DL_dataset/T1/DATA"))
+def create_topic_embeddings(users):
+    """
+    Receives a list of users with tokenized text and generates topic embeddings for each user.
+
+    param users: A list of user objects with tokenized title and text
+    return: A list of topic embeddings
+    """
+
+    topic_embeddings = []
+
+    for user in users:
+        text_tokens = []
+        for post in user.posts:
+            if post.text != []:
+                text_tokens.append(post.text)
+
+        # Creating a transformation
+        print(len(text_tokens))
+        dictionary = corpora.Dictionary(text_tokens)
+        num_terms = len(dictionary)
+
+        corpus = [dictionary.doc2bow(text) for text in text_tokens]
+        # step 1 -- initialize a model
+        tfidf = models.TfidfModel(corpus)
+
+        # step 2 -- use the model to transform vectors
+        corpus_tfidf = tfidf[corpus]
+
+        lsi_model = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=128)
+
+        corpus_lsi = lsi_model[corpus_tfidf]
+
+        embedding = gensim.matutils.corpus2dense(corpus_lsi, num_terms)
+
+        topic_embeddings.append(embedding)
+
+    return topic_embeddings
+
+
+users = tokenize(get_data("./DL_dataset/T1/DATA"))
+
+print("users tokenized")
+
+topic_embeddings = create_topic_embeddings(users)
+
+print("topic embeddings created")
