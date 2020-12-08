@@ -2,7 +2,9 @@ from preprocess import tokenize, create_topic_embeddings, get_data
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+MAX_TEXT_LENGTH = 1257
 
 def main():
 
@@ -19,6 +21,7 @@ def main():
 		user_labels = tf.one_hot(user_labels, depth=2)
 
 		topic_embeddings = tf.convert_to_tensor(topic_embeddings)
+		print("Topic embeddings processed")
 
     # How to add tf.keras.dropout?
     # model = keras.Sequential(

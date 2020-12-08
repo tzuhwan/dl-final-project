@@ -12,7 +12,9 @@ from gensim import corpora
 from gensim import models
 from gensim.models import LsiModel
 from gensim.matutils import Sparse2Corpus, corpus2dense
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+MAX_LENGTH = 1257
 
 def create_post(post_xml_tree_element):
     """
@@ -211,6 +213,8 @@ def create_topic_embeddings(users):
 				corpus_lsi = lsi_model[corpus_tfidf]
 
 				embedding = gensim.matutils.corpus2dense(corpus_lsi, 128)
+				embedding = pad_sequences(embedding, maxlen=MAX_LENGTH)
+				print(embedding.shape)
 
 				topic_embeddings.append(embedding)
 
