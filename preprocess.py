@@ -177,42 +177,44 @@ def tokenize(users):
 
 
 def create_topic_embeddings(users):
-    """
-    Receives a list of users with tokenized text and generates topic embeddings for each user.
+		"""
+		Receives a list of users with tokenized text and generates topic embeddings for each user.
 
-    param users: A list of user objects with tokenized title and text
-    return: A list of topic embeddings
-    """
+		param users: A list of user objects with tokenized title and text
+		return: A list of topic embeddings
+		"""
 
-    topic_embeddings = []
+		topic_embeddings = []
 
-    for user in users:
-        text_tokens = []
-        for post in user.posts:
-            if post.text and post.text != []:
-                text_tokens.append(post.text)
+		for user in users:
+				text_tokens = []
+				for post in user.posts:
+						if post.text and post.text != []:
+								text_tokens.append(post.text)
 
-        # Creating a transformation
-        print(len(text_tokens))
-        dictionary = corpora.Dictionary(text_tokens)
-        num_terms = len(dictionary)
+				# Creating a transformation
+				print(len(text_tokens))
+				if (len(text_tokens) == 0):
+					continue
+				dictionary = corpora.Dictionary(text_tokens)
+				num_terms = len(dictionary)
 
-        corpus = [dictionary.doc2bow(text) for text in text_tokens]
-        # step 1 -- initialize a model
-        tfidf = models.TfidfModel(corpus)
+				corpus = [dictionary.doc2bow(text) for text in text_tokens]
+				# step 1 -- initialize a model
+				tfidf = models.TfidfModel(corpus)
 
-        # step 2 -- use the model to transform vectors
-        corpus_tfidf = tfidf[corpus]
+				# step 2 -- use the model to transform vectors
+				corpus_tfidf = tfidf[corpus]
 
-        lsi_model = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=128)
+				lsi_model = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=128)
 
-        corpus_lsi = lsi_model[corpus_tfidf]
+				corpus_lsi = lsi_model[corpus_tfidf]
 
-        embedding = gensim.matutils.corpus2dense(corpus_lsi, num_terms)
+				embedding = gensim.matutils.corpus2dense(corpus_lsi, num_terms)
 
-        topic_embeddings.append(embedding)
+				topic_embeddings.append(embedding)
 
-    return topic_embeddings
+		return topic_embeddings
 
 
 users = tokenize(get_data("./DL_dataset/T1/DATA"))
