@@ -210,17 +210,17 @@ def create_topic_embeddings(users):
 
 				corpus_lsi = lsi_model[corpus_tfidf]
 
-				embedding = gensim.matutils.corpus2dense(corpus_lsi, num_terms)
+				embedding = gensim.matutils.corpus2dense(corpus_lsi, 128)
 
 				topic_embeddings.append(embedding)
 
 		return topic_embeddings
 
 
-users = tokenize(get_data("./DL_dataset/T1/DATA"))
+# users = tokenize(get_data("./DL_dataset/T1/DATA"))
 
-print("users tokenized")
+# print("users tokenized")
 
-topic_embeddings = create_topic_embeddings(users)
+# topic_embeddings = create_topic_embeddings(users)
 
-print("topic embeddings created")
+# print("topic embeddings created")
