@@ -189,7 +189,7 @@ def create_topic_embeddings(users):
     for user in users:
         text_tokens = []
         for post in user.posts:
-            if post.text != []:
+            if post.text and post.text != []:
                 text_tokens.append(post.text)
 
         # Creating a transformation
