@@ -34,6 +34,7 @@ def main():
 		topic_embeddings = tf.convert_to_tensor(topic_embeddings)
 		print(topic_embeddings.shape)
 		print("Topic embeddings processed")
+		print(user_labels.shape)
 
     # How to add tf.keras.dropout?
     # model = keras.Sequential(
@@ -58,13 +59,26 @@ def main():
 		model.add(layers.Dropout(0.2))
 		model.add(layers.Dense(256, activation=tf.keras.layers.LeakyReLU(alpha=0.3), name="layer3"))
 		model.add(layers.Dropout(0.2))
-		model.add(layers.Dense(2, name="layer4"))
+		model.add(layers.Dense(2, activation = "sigmoid", name="layer4"))
+
+		METRICS = [
+		#keras.metrics.SparseCategoricalAccuracy(name='SparseCategoricalAccuracy'),
+		#keras.metrics.TruePositives(name='tp'),
+		#keras.metrics.FalsePositives(name='fp'),
+		#keras.metrics.TrueNegatives(name='tn'),
+		keras.metrics.FalseNegatives(name='fn'), 
+		keras.metrics.BinaryAccuracy(name='accuracy'),
+		#keras.metrics.Precision(name='precision'),
+		#keras.metrics.Recall(name='recall'),
+		#keras.metrics.AUC(name='auc'),
+		]
 
 		# the compile() method: specifying a loss, metrics, and an optimizer
 		model.compile(
 				optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
-				loss=keras.losses.SparseCategoricalCrossentropy(),
-				metrics=[keras.metrics.SparseCategoricalAccuracy()],
+				loss = keras.losses.BinaryCrossentropy(),
+				#loss=keras.losses.SparseCategoricalCrossentropy(),
+				metrics=[METRICS],
 		)
 
 		history = model.fit(

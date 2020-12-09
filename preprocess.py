@@ -6,7 +6,7 @@ from string import digits
 import xml.etree.ElementTree as ET
 from user import User
 from post import Post
-
+import random
 import gensim
 from gensim import corpora
 from gensim import models
@@ -89,8 +89,15 @@ def get_data(directory_path):
     """
     user_label_map = create_user_label_map("./DL_dataset/T1/T1_erisk_golden_truth.txt")
 
+    num_non_depressed = sum(x ==0 for x in user_label_map.values()) # 319
+    num_depressed = sum(x ==1 for x in user_label_map.values()) # 104
+
+    ideal_num_non_depressed = num_depressed*2
+    count = 0
     users = []
-    for user_filename in os.listdir(directory_path):
+    file_names = os.listdir(directory_path)
+    random.shuffle(file_names)
+    for user_filename in file_names:
         file_path = directory_path + "/" + user_filename
         # user_file = open(f"{directory_path}/{user_filename}", "rb")
         user_file = open(file_path, "rb")
@@ -98,10 +105,17 @@ def get_data(directory_path):
         # Parse the XML file and create a User instance from the XML tree
         user_xml_tree = ET.parse(user_file)
         user = create_user(user_xml_tree.getroot())
-        user.set_label(user_label_map[user.id])
+        label = user_label_map[user.id]
+        user.set_label(label)
 
-        users.append(user)
+        if label == 0:
+            if count < ideal_num_non_depressed:
+                users.append(user)
+                count +=1
+        else:
+            users.append(user)
 
+    assert(count <= ideal_num_non_depressed+1)    
     return users
 
 
