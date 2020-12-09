@@ -187,8 +187,9 @@ def create_topic_embeddings(users):
 		"""
 
 		topic_embeddings = []
+		print(len(users))
 
-		for user in users:
+		for i, user in enumerate(users):
 				text_tokens = []
 				for post in user.posts:
 						if post.text and post.text != []:
@@ -213,7 +214,7 @@ def create_topic_embeddings(users):
 				corpus_lsi = lsi_model[corpus_tfidf]
 
 				embedding = gensim.matutils.corpus2dense(corpus_lsi, 128)
-				embedding = pad_sequences(embedding, maxlen=MAX_LENGTH)
+				embedding = pad_sequences(embedding, maxlen=MAX_LENGTH, padding="post")
 				print(embedding.shape)
 
 				topic_embeddings.append(embedding)

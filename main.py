@@ -57,8 +57,8 @@ def main():
 		history = model.fit(
 				topic_embeddings,
 				user_labels,
-				batch_size=None,
-				epochs=None,
+				batch_size=50,
+				epochs=1,
 		)
 
 
