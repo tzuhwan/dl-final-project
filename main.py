@@ -40,6 +40,7 @@ def main():
     #     ]
     # )
 		model = keras.Sequential()
+		model.add(layers.Flatten())
 		model.add(layers.Dense(512, activation=tf.keras.layers.LeakyReLU(alpha=0.3), name="layer1"))
 		model.add(layers.Dropout(0.2))
 		model.add(layers.Dense(256, activation=tf.keras.layers.LeakyReLU(alpha=0.3), name="layer2"))
