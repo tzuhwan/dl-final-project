@@ -21,6 +21,7 @@ def main():
 		user_labels = tf.one_hot(user_labels, depth=2)
 
 		topic_embeddings = tf.convert_to_tensor(topic_embeddings)
+		print(topic_embeddings.shape)
 		print("Topic embeddings processed")
 
     # How to add tf.keras.dropout?

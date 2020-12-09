@@ -187,7 +187,7 @@ def create_topic_embeddings(users):
 		"""
 
 		topic_embeddings = []
-		print(len(users))
+		users_with_empty_text = []
 
 		for i, user in enumerate(users):
 				text_tokens = []
@@ -198,6 +198,7 @@ def create_topic_embeddings(users):
 				# Creating a transformation
 				print(len(text_tokens))
 				if (len(text_tokens) == 0):
+					users_with_empty_text.append(i)
 					continue
 				dictionary = corpora.Dictionary(text_tokens)
 				num_terms = len(dictionary)
@@ -218,6 +219,9 @@ def create_topic_embeddings(users):
 				print(embedding.shape)
 
 				topic_embeddings.append(embedding)
+
+		for i in users_with_empty_text:
+			users.pop(i)
 
 		return topic_embeddings
 
