@@ -9,10 +9,20 @@ MAX_TEXT_LENGTH = 1257
 def main():
 
 		# Retrieve tokenized users
+		print('~~~~~~~~~~~~~~~~~~~~~~~~~retrieving users...~~~~~~~~~~~~~~~~~~~~')
 		users = tokenize(get_data("./DL_dataset/T1/DATA"))
+		print('type of users:', type(users))
+		print('number of users:', len(users))
+		print('type of first user:', type(users[0]))
+		print('first user:', users[0])
+		print('~~~~~~~~~~~~~~~~~~~~~~~~~users retrieved!~~~~~~~~~~~~~~~~~~~~')
 
 		# create topic embeddings for each user
+		print('~~~~~~~~~~~~~~~~~~~~~~~~~creating topic embeddings...~~~~~~~~~~~~~~~~~~~~')
 		topic_embeddings = create_topic_embeddings(users)
+		print('type of topic embeddings:', type(topic_embeddings))
+		print('number of topic embeddings:', len(topic_embeddings))
+		print('~~~~~~~~~~~~~~~~~~~~~~~~~topic embeddings created!~~~~~~~~~~~~~~~~~~~~')
 
 		# create one-hot vector based on user labels
 		user_labels = []

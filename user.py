@@ -11,3 +11,6 @@ class User:
 	
 	def set_label(self, label):
 		self.label = label
+
+	def __str__(self):
+		return 'User id: ' + str(self.id) + ', Number of posts: ' + str(len(self.posts)) + ', Label: ' + str(self.label)
