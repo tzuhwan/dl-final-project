@@ -28,7 +28,8 @@ def main():
 		user_labels = []
 		for user in users:
 				user_labels.append(user.label)
-		user_labels = tf.one_hot(user_labels, depth=2)
+		user_labels = tf.convert_to_tensor(user_labels)
+		# user_labels = tf.one_hot(user_labels, depth=2)
 
 		topic_embeddings = tf.convert_to_tensor(topic_embeddings)
 		print(topic_embeddings.shape)
