@@ -23,6 +23,7 @@ def main():
 		topic_embeddings = create_topic_embeddings(users)
 		print('type of topic embeddings:', type(topic_embeddings))
 		print('number of topic embeddings:', len(topic_embeddings))
+		print('first topic embedding:', topic_embeddings[0])
 		print('~~~~~~~~~~~~~~~~~~~~~~~~~topic embeddings created!~~~~~~~~~~~~~~~~~~~~')
 
 		# create one-hot vector based on user labels
@@ -88,7 +89,7 @@ def main():
 				topic_embeddings[:-TEST_SIZE],
 				user_labels[:-TEST_SIZE],
 				batch_size=50,
-				epochs=1,
+				epochs=10,
 		)
 
 		print("Now Testing Model")
@@ -100,6 +101,8 @@ def main():
 		argmax_predictions = tf.math.argmax(predictions, 1)
 		print('argmax predictions are:', argmax_predictions)
 		print('number of predictions:', len(predictions))
+
+		# manual_accuracy = 
 
 		model.evaluate(
 			topic_embeddings[-TEST_SIZE:],
