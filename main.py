@@ -93,10 +93,12 @@ def main():
 
 		print("Now Testing Model")
 
-		predictions = model.evaluate(
+		predictions = model.predict(
 			topic_embeddings[-TEST_SIZE:],
 		)
 		print('predictions are:', predictions)
+		argmax_predictions = tf.math.argmax(predictions, 1)
+		print('argmax predictions are:', argmax_predictions)
 		print('number of predictions:', len(predictions))
 
 		model.evaluate(
