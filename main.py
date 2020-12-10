@@ -29,7 +29,7 @@ def main():
 		for user in users:
 				user_labels.append(user.label)
 		user_labels = tf.convert_to_tensor(user_labels)
-		# user_labels = tf.one_hot(user_labels, depth=2)
+		user_labels = tf.one_hot(user_labels, depth=2)
 
 		topic_embeddings = tf.convert_to_tensor(topic_embeddings)
 		print(topic_embeddings.shape)
@@ -61,15 +61,17 @@ def main():
 		model.add(layers.Dropout(0.2))
 		model.add(layers.Dense(2, activation = "sigmoid", name="layer4"))
 
+		#model.add(layers.Dense(2, activation = "sigmoid", name="layer4"))
+
 		METRICS = [
 		#keras.metrics.SparseCategoricalAccuracy(name='SparseCategoricalAccuracy'),
-		#keras.metrics.TruePositives(name='tp'),
-		#keras.metrics.FalsePositives(name='fp'),
-		#keras.metrics.TrueNegatives(name='tn'),
+		keras.metrics.TruePositives(name='tp'),
+		keras.metrics.FalsePositives(name='fp'),
+		keras.metrics.TrueNegatives(name='tn'),
 		keras.metrics.FalseNegatives(name='fn'), 
 		keras.metrics.BinaryAccuracy(name='accuracy'),
-		#keras.metrics.Precision(name='precision'),
-		#keras.metrics.Recall(name='recall'),
+		keras.metrics.Precision(name='precision'),
+		keras.metrics.Recall(name='recall'),
 		#keras.metrics.AUC(name='auc'),
 		]
 
