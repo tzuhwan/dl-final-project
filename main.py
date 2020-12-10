@@ -5,6 +5,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 MAX_TEXT_LENGTH = 1257
+TEST_SIZE = 100 
 
 def main():
 
@@ -84,10 +85,17 @@ def main():
 		)
 
 		history = model.fit(
-				topic_embeddings,
-				user_labels,
+				topic_embeddings[:-TEST_SIZE],
+				user_labels[:-TEST_SIZE],
 				batch_size=50,
 				epochs=1,
+		)
+
+		print("Now Testing Model")
+		model.evaluate(
+			topic_embeddings[-TEST_SIZE:],
+			user_labels[-TEST_SIZE:],
+			batch_size=20
 		)
 
 
