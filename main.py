@@ -92,6 +92,14 @@ def main():
 		)
 
 		print("Now Testing Model")
+
+		predictions = model.evaluate(
+			topic_embeddings[-TEST_SIZE:],
+			user_labels[-TEST_SIZE:],
+		)
+		print('predictions are:', predictions)
+		print('number of predictions:', len(predictions))
+
 		model.evaluate(
 			topic_embeddings[-TEST_SIZE:],
 			user_labels[-TEST_SIZE:],
