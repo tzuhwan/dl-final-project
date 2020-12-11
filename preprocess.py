@@ -211,41 +211,83 @@ def create_topic_embeddings(users):
 					text_tokens.append(post.text)
 					max_padding_length = max(max_padding_length, len(text_tokens))
 				
-
+        # just have this while loop make the user 'documents'
+		user_docs = []
 		for i, user in enumerate(users):
 				text_tokens = []
 				for post in user.posts:
 						if post.text and post.text != []:
-								text_tokens.append(post.text)
+                                # post is a list of words
+								print('type of post:',type(post.text), post.text)
+								# text_tokens.append(post.text)
+                                
+								# now text_tokens looks like: [w1, w2, ..., wn]
+								text_tokens += post.text
+                                # basically all words from this user in a single list
 
 				# Creating a transformation
-				print(len(text_tokens))
-				if (len(text_tokens) == 0):
+				print(len(text_tokens)) # this used to be how many posts the user made, but now it's how many words the user has written
+				if (len(text_tokens) == 0): # if the user has no words, then skip, same idea
 					users_with_empty_text.append(i)
 					continue
-				dictionary = corpora.Dictionary(text_tokens)
-				num_terms = len(dictionary)
+				
+				user_docs.append(text_tokens) # this is appending a single user, as a document, into user_docs
 
-				corpus = [dictionary.doc2bow(text) for text in text_tokens]
-				# step 1 -- initialize a model
-				tfidf = models.TfidfModel(corpus)
+				# dictionary = corpora.Dictionary(text_tokens)
+				# num_terms = len(dictionary)
 
-				# step 2 -- use the model to transform vectors
-				corpus_tfidf = tfidf[corpus]
+				# corpus = [dictionary.doc2bow(text) for text in text_tokens]
+				# # step 1 -- initialize a model
+				# tfidf = models.TfidfModel(corpus)
 
-				lsi_model = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=128)
+				# # step 2 -- use the model to transform vectors
+				# corpus_tfidf = tfidf[corpus]
 
-				corpus_lsi = lsi_model[corpus_tfidf]
+				# lsi_model = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=128)
 
-				embedding = gensim.matutils.corpus2dense(corpus_lsi, 128)
-				embedding = pad_sequences(embedding, maxlen=max_padding_length, padding="pre")
-				print(embedding.shape)
+				# corpus_lsi = lsi_model[corpus_tfidf]
 
-				topic_embeddings.append(embedding)
+				# embedding = gensim.matutils.corpus2dense(corpus_lsi, 128)
+				# # embedding = pad_sequences(embedding, maxlen=max_padding_length, padding="pre")
+				# print(embedding.shape)
+
+				# topic_embeddings.append(embedding)
 
 		for i in users_with_empty_text:
 			users.pop(i)
 
+		# at this point user_docs = [doc for user1, doc for user2, ...] (only the users with words)
+		dictionary = corpora.Dictionary(user_docs) # this dictionary has words for all users
+		num_terms = len(dictionary)
+		print('num terms in dictionary:', num_terms)
+
+		corpus = [dictionary.doc2bow(text) for text in user_docs] # this is each user, represented as a bag of words
+		# tfidf = models.TfidfModel(corpus)
+		# corpus_tfidf = tfidf[corpus]
+		lsi_model = models.LsiModel(corpus, id2word=dictionary, num_topics=128) # train lsi model on all of our users, represented as docs.
+		topics = lsi_model.print_topics(num_topics=-1)
+		print('topics from lsi model:', topics, 'number of topics?:', len(topics), 'type of topics:', type(topics))
+		
+		# now that we have trained our model, let's apply it to our docs?
+		for doc_representation_of_user in corpus:
+			cur_embedding = lsi_model[doc_representation_of_user]
+			cur_embedding = [elm[1] for elm in cur_embedding] # cur_embedding = [weight of topic1, weight of topic2, ...]
+
+			# use this as cur_embedding b/c of this link: https://github.com/RaRe-Technologies/gensim/issues/2501
+			# cur_embedding = gensim.matutils.corpus2dense(lsi_model[doc_representation_of_user], len(lsi_model.projection.s)).T / lsi_model.projection.s
+			# print('current embedding is:', cur_embedding)
+
+			# all topic embeddings are still length of 128! Good.
+			print('length of embedding is:', len(cur_embedding)) 
+			if len(cur_embedding) != 128:
+				print('bad!!!')
+				print(doc_representation_of_user)
+			# print('shape of cur embedding:', cur_embedding.shape, 'type is:', type(cur_embedding))
+			topic_embeddings.append(cur_embedding)
+
+
+		print('first topic embedding:', topic_embeddings[0])
+		print('second topic embedding:', topic_embeddings[1])
 		return topic_embeddings
 
 
